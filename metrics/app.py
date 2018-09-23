@@ -1,44 +1,72 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask
+from flask_basicauth import BasicAuth
+import json
+import os
+import psutil
+psutil.PROCFS_PATH = "/proc_host"
 
-app = Flask(__name__)
+from lib import cpu
+from lib import disk
+from lib import ram
+from lib import service
+from lib import network
 
 
-@app.route("/")
+
+application = Flask(__name__)
+
+application.config['BASIC_AUTH_USERNAME'] = os.environ.get('BASIC_AUTH_USERNAME')
+application.config['BASIC_AUTH_PASSWORD'] = os.environ.get('BASIC_AUTH_PASSWORD')
+
+basic_auth = BasicAuth(application)
+
+application.config['BASIC_AUTH_FORCE'] = True
+
+
+@application.route("/proc/")
+def return_path():
+    return psutil.PROCFS_PATH
+
+@application.route("/hostname/")
+def return_hostname():
+    return "app served from {} to {}".format(socket.gethostname(), request.remote_addr)
+
+
+@application.route("/")
 def hello_world():
     return "Hello world"
 
 
-@app.route("/hello/<name>")
+
+@application.route("/hello/<string:name>")
 def say_hello(name):
-    return f"Hello <b>{name}</b>"
+    return '<p>Hello <b>%s</b></p>' % name
 
 
-@app.route("/metrics/cpu")
+@application.route("/metrics/cpu")
 def metrics_cpu():
-    pass
+    return cpu.Cpu().json
 
 
-@app.route("/metrics/ram")
+@application.route("/metrics/ram")
 def metrics_ram():
-    pass
+    return ram.Ram().json
 
 
-@app.route("/metrics/disk")
+
+@application.route("/metrics/disk")
 def metrics_disk():
-    pass
+    return disk.Disk().json
 
 
-@app.route("/metrics/network")
+
+
+@application.route("/metrics/network")
 def metrics_network():
-    pass
+    return network.Network().json
 
-
-@app.route("/metrics/services")
+@application.route("/metrics/services")
 def metrics_services():
-    pass
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    return service.Service().json

@@ -1,0 +1,24 @@
+- file:
+    state: "{{item}}"
+    path: /opt/task
+  with_items:
+    - absent
+    - directory
+- name: Compress metrics/ into {{playbook_dir}}/metrics.tgz
+  archive:
+    path:  "{{playbook_dir}}/metrics"
+    dest: "{{playbook_dir}}/metrics.tgz"
+  delegate_to: localhost
+- name: Unarchive {{playbook_dir}}/metrics.tgz to /opt/task/metrics
+  unarchive:
+    src: "{{playbook_dir}}/metrics.tgz"
+    dest: /opt/task
+- copy:
+    src: "{{item.src}}"
+    dest: "/opt/task/{{item.path}}"
+  with_filetree: files/
+
+- include: docker.yml
+  with_indexed_items: "{{ flask_ports }}"
+- include: check.yml
+

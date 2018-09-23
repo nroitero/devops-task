@@ -1,0 +1,10 @@
+---
+- hosts: all
+
+  become: yes
+  roles:
+    - pre_deploy
+    - { role: certbot, when: with_ssl }
+    - nginx
+    - docker
+    - deploy

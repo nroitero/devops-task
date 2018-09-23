@@ -1,0 +1,14 @@
+
+basic_auth_user: user
+basic_auth_password: test
+domain: devops-task.test
+with_ssl: false
+flask_ports:
+  - 5000
+  - 6000
+  - 7000
+
+
+whitelisted:
+  - 192.168.33.1
+  - 12.0.0.1

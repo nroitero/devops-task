@@ -1,0 +1,18 @@
+
+
+- name: generate nginx configuration without ssl
+  set_fact:
+
+    nginx_vhosts:
+      - listen: "80"
+
+        server_name: "{{domain}}"
+        filename: "{{domain}}.conf"
+        extra_parameters: |
+          location / {
+          proxy_set_header Host $host;
+          proxy_pass  http://upstream;
+          {{allowed| join('
+          ')}}
+          deny    all;
+          }

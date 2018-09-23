@@ -1,0 +1,36 @@
+
+
+- name: Remove container metrics_{{item.0}}
+  docker_container:
+    name: metrics_{{item.0}}
+    state: absent
+- name: Remove image metrics_{{item.0}}
+  docker_image:
+    state: absent
+    name: metrics_{{item.0}}
+
+- name: Build image metrics_{{item.0}}
+  docker_image:
+    path: /opt/task
+    name: metrics_{{item.0}}
+  retries: 10 #for timeout errors
+
+
+- name: Run container metrics_{{item.0}}
+  docker_container:
+    name: metrics_{{item.0}}
+    image: "metrics_{{item.0}}"
+    state: started
+    memory: 256m
+    memory_reservation: 128m
+    network_mode: host
+    volumes:
+      - /proc:/proc_host:ro
+    exposed_ports: "{{item.1}}"
+    privileged: yes
+    # published_ports: "127.0.0.1:{{item.1}}:4000"
+    restart_policy: always
+    env:
+      BASIC_AUTH_USERNAME: "{{basic_auth_user}}"
+      BASIC_AUTH_PASSWORD: "{{basic_auth_password}}"
+      FLASK_PORT: "{{item.1}}"

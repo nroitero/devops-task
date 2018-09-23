@@ -1,0 +1,47 @@
+- name: initialize variable upstream_urls
+  set_fact:
+    upstream_urls: []
+- name: generate upstream configuration from ports {{flask_ports}}
+  set_fact:
+    upstream_urls: "{{upstream_urls + ['localhost:'+(item|string)]}}"
+  with_items: "{{flask_ports}}"
+- name: insert upstream_urls into nginx_upstreams
+  set_fact:
+    nginx_upstreams:
+    - name: upstream
+      servers: "{{upstream_urls}}"
+
+
+
+- name: initialize variable allowed
+  set_fact:
+    allowed: []
+- name: add whitelisted ips to allowed
+  set_fact:
+    allowed: "{{allowed + ['allow '+(item|string)+';']}}"
+  with_items: "{{whitelisted}}"
+
+
+- include: ssl.yml
+  when: with_ssl
+- include: no_ssl.yml
+  when: not with_ssl
+
+
+- name: install required packages
+  apt:
+    name: "{{item}}"
+  with_items:
+    - python-pip
+    - uwsgi
+
+- name: install pip module docker
+  pip:
+    name: "{{item}}"
+  with_items:
+    - docker
+
+- name: remove  /etc/nginx/nginx.conf
+  file:
+    path: /etc/nginx/nginx.conf
+    state: absent

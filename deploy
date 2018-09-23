@@ -1,0 +1,2 @@
+git submodule update --recursive --remote --init
+ansible-playbook playbook.yml -i inventory/ --limit  devops-task

@@ -1,0 +1,43 @@
+- name: generate uuidgen for testing
+  command: uuidgen
+  run_once: true
+  delegate_to: localhost
+  register: uuid
+- set_fact:
+    string: <p>Hello <b>{{uuid.stdout}}</b></p>
+- set_fact:
+    check_method: https
+  when: with_ssl
+- set_fact:
+    check_method: http
+  when: not with_ssl
+- uri:
+    url: "{{check_method}}://{{domain}}/hello/{{uuid.stdout}}"
+    return_content: yes
+    user: "{{basic_auth_user}}"
+    password: "{{basic_auth_password}}"
+    force_basic_auth: yes
+  delegate_to: localhost
+  register: webpage
+  retries: 3
+
+- name: Fail if {{string}} is not in the page content
+  fail:
+  retries: 3
+  when: "string not in webpage.content"
+
+
+- uri:
+    url: "{{check_method}}://{{domain}}/"
+    return_content: yes
+    user: "{{basic_auth_user}}"
+    password: "{{basic_auth_password}}"
+    force_basic_auth: yes
+  delegate_to: localhost
+  register: webpage
+  retries: 3
+
+- name: Fail if 'Hello world' is not in the page content
+  fail:
+  retries: 3
+  when: "'Hello world' not in webpage.content"

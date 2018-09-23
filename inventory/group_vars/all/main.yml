@@ -1,0 +1,16 @@
+docker_install_compose: false
+
+certbot_create_if_missing: yes
+certbot_admin_email: nicolas.roitero@gmail.com
+certbot_create_command: "{{ certbot_script }} certonly --standalone --noninteractive --agree-tos --email {{ cert_item.email | default(certbot_admin_email) }} -d {{ cert_item.domains | join(',') }} --uir"
+
+
+certbot_certs:
+  - email: nicolas.roitero@gmail.com
+    domains:
+      - "{{domain}}"
+
+nginx_ppa_use: true
+nginx_ppa_version: stable
+
+nginx_remove_default_vhost: true

@@ -1,0 +1,15 @@
+domain: devops-task.tk
+
+# create ssl certificates with letsencrypt
+with_ssl: true
+
+#generate one container per port
+flask_ports:
+  - 5000
+  - 6000
+  - 7000
+whitelisted:
+  - 83.36.26.30
+  - 89.185.236.68
+  - 62.44.13.180
+

@@ -1,0 +1,16 @@
+basic_auth_user: user
+basic_auth_password: test
+domain: devops-task.uhlhost.net
+# create ssl certificates with letsencrypt
+with_ssl: true
+
+#each port declaration raise a different container
+flask_ports:
+  - 5000
+  - 6000
+  - 7000
+
+whitelisted:
+  - 83.36.26.30
+  - 89.185.236.68
+  - 62.44.13.180
